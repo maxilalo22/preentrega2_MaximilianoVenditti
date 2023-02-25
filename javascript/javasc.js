@@ -14,11 +14,14 @@ let generarVenta = document.getElementById("generarVenta")
 let buscador = document.getElementById("buscador")
 let buscar = document.getElementById("buscar")
 let coincidencia = document.getElementById("coincidencia")
+let clienteAgregado = document.getElementById("nombreInput")
 
 function buscarCliente (buscador, Clientes){
     let clienteBuscado = Clientes.filter(
         (cliente) => cliente.nombre.toUpperCase() == buscador.value.toUpperCase()
     )
+    /* clienteBuscado.length == 0 ? coincidencia.innerHTML = `<h3>No hay coincidencias con su búsqueda</h3>` :  coincidencia.innerHTML = "",
+    verCartera(clienteBuscado)  */
     if(clienteBuscado.length == 0){
         coincidencia.innerHTML = `<h3>No hay coincidencias con su búsqueda</h3>`
     }else{
@@ -26,6 +29,8 @@ function buscarCliente (buscador, Clientes){
         verCartera(clienteBuscado)
     }
 }
+
+
 
 buscar.addEventListener("click", function(){
     buscarCliente(buscador, Clientes);
@@ -35,9 +40,27 @@ buscar.addEventListener("click", function(){
 
 
 
+
+
 ventaBotton.addEventListener("click", function(){
     modal3.style.display ="block";
 })
+
+function corroborarVenta (){
+    let inputCuenta = document.getElementById("cuentaInput")
+    let inputVenta = document.getElementById("ventaInput")
+    let inputPago = document.getElementById("pagoInput")
+    if (inputCuenta.value ==="" || inputVenta.value ==="" || inputPago.value ===""){
+        Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'Debes completar con la información necesaria',
+        })
+        }else{
+            nuevaVenta(Clientes)
+            verCartera(Clientes)
+        }
+}
 
 function nuevaVenta(Clientes){
     let inputCuenta = document.getElementById("cuentaInput")
@@ -48,27 +71,62 @@ function nuevaVenta(Clientes){
     const cliVen = Clientes.find((elemento) => {
         return elemento.nombre === ventaCliente
     })
+    
     console.log(ventaCliente)
+    
     let venta = parseInt(inputVenta.value)
-    console.log("El valor de la venta es $" + venta)
+    
     let pago = parseInt(inputPago.value)
-    console.log("El pago recibido es $" + pago)
-    console.log("Saldo anterior $" + cliVen.saldo)
+    
+    
     function nuevoSaldo() {
         cliVen.saldo = cliVen.saldo + parseFloat(venta) - parseFloat(pago)
     }
-    nuevoSaldo()
-    console.log(ventaCliente, "Saldo actualizado $" + cliVen.saldo)
-    formVentas.reset()
+
+    const swalWithBootstrapButtons = Swal.mixin({
+        customClass: {
+        confirmButton: 'btn btn-success',
+        cancelButton: 'btn btn-danger'
+        },
+        buttonsStyling: false
+    })
+    
+    swalWithBootstrapButtons.fire({
+        title: 'Confirmar venta?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Confirmar',
+        cancelButtonText: 'Cancelar',
+        reverseButtons: true
+    }).then((result) => {
+        if (result.isConfirmed) {
+        swalWithBootstrapButtons.fire(
+            'Nueva venta generada'
+        )
+        nuevoSaldo()
+        formVentas.reset()
+        verCartera(Clientes)
+        localStorage.setItem("clientes",JSON.stringify(Clientes))
+
+        } else if (    
+        result.dismiss === Swal.DismissReason.cancel
+        ) {
+        swalWithBootstrapButtons.fire(
+            'Cancelado'
+        )
+        }
+    })
+    
 }
 
 generarVenta.addEventListener("click", function(){
-    nuevaVenta(Clientes)
+    corroborarVenta()
 })
 
 window.addEventListener("click", function(event){
     if (event.target == modal3) {
-    modal3.style.display = "none";}
+    modal3.style.display = "none";} 
+
 })
 
 
@@ -85,8 +143,27 @@ function eliminarCliente() {
             Clientes.splice(index, 1)
         }
     }
-    eliminar(clienteBorrar)
-    formBajas.reset()
+    Swal.fire({
+        title: 'Estas seguro?',
+        text: "No podrás revertir este cambio!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+        Swal.fire(
+            'ELIMINADO!',
+            'El cliente ha sido eliminado.',
+        )
+        eliminar(clienteBorrar)
+        formBajas.reset()
+        verCartera(Clientes)
+        localStorage.setItem("clientes",JSON.stringify(Clientes))
+        }
+    })
+    
 }
 borrarCliente.addEventListener("click", function(){
     eliminarCliente(Clientes)
@@ -111,13 +188,37 @@ function cargarCliente (Clientes){
     Clientes.push(clienteNuevo)
 
     localStorage.setItem("clientes",JSON.stringify(Clientes))
-
+    
     let formNuevo = document.getElementById("formNuevoCliente")
     formNuevo.reset()
+    Swal.fire({
+        position: 'center',
+        icon: 'success',
+        title: 'Cliente Guardado',
+        showConfirmButton: false,
+        timer: 1500
+    })
+}
+
+function corroborarInputs (){
+    let inputNombre = document.getElementById("nombreInput")
+    let inputRazonSocial = document.getElementById("razonSocialInput")
+    let inputDireccion = document.getElementById("direccionInput")
+    let inputSaldo = document.getElementById("saldoInput")
+    if (inputNombre.value === "" || inputRazonSocial.value ==="" || inputDireccion.value ==="" || inputSaldo.value ===""){
+        Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'Debes completar con la información necesaria',
+        })
+        }else{
+            cargarCliente(Clientes)
+            verCartera(Clientes)
+        }
 }
 
 clienteGuardar.addEventListener("click", function(){
-    cargarCliente(Clientes)
+    corroborarInputs()
 })
 
 agregarBoton.addEventListener("click", function(){
@@ -150,6 +251,7 @@ function verCartera(Clientes){
 }
 cierreBoton.onclick = function(){
     clientesDiv.innerHTML= ""
+    cierreBoton.style.display="none"
 }
 carteraButton.onclick = function(){
     verCartera(Clientes)

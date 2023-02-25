@@ -32,6 +32,10 @@ h1{
 .contenedor{
     margin-top:  90px;
 }
+.principal h1{
+    font-family: 'Audiowide', cursive;
+    font-family: 'Black Ops One', cursive;
+}
 
 .card{
     margin-top: 20px;
