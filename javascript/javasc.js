@@ -20,8 +20,6 @@ function buscarCliente (buscador, Clientes){
     let clienteBuscado = Clientes.filter(
         (cliente) => cliente.nombre.toUpperCase() == buscador.value.toUpperCase()
     )
-    /* clienteBuscado.length == 0 ? coincidencia.innerHTML = `<h3>No hay coincidencias con su búsqueda</h3>` :  coincidencia.innerHTML = "",
-    verCartera(clienteBuscado)  */
     if(clienteBuscado.length == 0){
         coincidencia.innerHTML = `<h3>No hay coincidencias con su búsqueda</h3>`
     }else{
@@ -71,13 +69,10 @@ function nuevaVenta(Clientes){
     const cliVen = Clientes.find((elemento) => {
         return elemento.nombre === ventaCliente
     })
-    
-    console.log(ventaCliente)
-    
+
     let venta = parseInt(inputVenta.value)
     
     let pago = parseInt(inputPago.value)
-    
     
     function nuevoSaldo() {
         cliVen.saldo = cliVen.saldo + parseFloat(venta) - parseFloat(pago)
@@ -131,12 +126,10 @@ window.addEventListener("click", function(event){
 
 
 function eliminarCliente() {
-    console.log(Clientes)
     const borrarCliente = (nombreInput2.value).toUpperCase()
     const clienteBorrar = Clientes.find((elemento) => {
         return elemento.nombre === borrarCliente
     })
-    console.log(clienteBorrar)
     const eliminar = (clienteBorrar) => {
         let index = Clientes.indexOf(clienteBorrar)
         if (index != -1) {
@@ -242,6 +235,9 @@ function verCartera(Clientes){
             <h2 class="card-title">${cliente.nombre}</h2>
             <p class="card-text">${cliente.direccion}</p>
             <p class="card-text">Saldo $${cliente.saldo}</p>
+        </div>
+        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+            <button class="btn btn-primary" type="button">Ir a cuenta</button>
         </div>
     </div>  
 `
